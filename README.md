@@ -1,10 +1,10 @@
 Game of Life
 ============
 
-# Introduction
+## Introduction
 See [Conway's Game of Life](http://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
 
-# Usage
+## Usage
 ```bash
 ruby lib/gol.rb
 ```
