@@ -1,6 +1,5 @@
 class Cell
-  attr_accessor :state
-  attr_accessor :next_state
+  attr_accessor :x, :y, :state
 
   def initialize(state = :dead)
     @state      = state

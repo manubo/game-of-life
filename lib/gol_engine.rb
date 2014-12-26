@@ -3,40 +3,41 @@ require 'cell'
 require 'renderer/console'
 
 class GolEngine
-  def initialize(width, height)
-    @width  = width
-    @height = height
-    @world  = World.new(width, height)
-    @world.populate Cell
-  end
-
-  def use_renderer(renderer_type)
-      renderer_class = renderer_type.to_s.split('_').map{ |p| p.capitalize }.join
-      @renderer = ['Renderer', renderer_class].inject(Object) { |o, c| o.const_get c}.new(@world)
-      self
+  def initialize(renderer_type = :console, width = nil, height = nil)
+    @renderer = initialize_renderer(renderer_type)
+    @world  = World.new(width || @renderer.width, height || @renderer.height)
+    @world.populate Cell.new
   end
 
   def initial_pattern(*coordinates)
     coordinates.each do |x, y|
-      @world.set(x, y, Cell.new(:alive))
+      cell = Cell.new(:alive)
+      cell.x = x
+      cell.y = y
+      @world.set(cell)
     end
   end
 
   def run(rounds)
-    render
+    render @world
     rounds.times do
       calculate_cycle
       apply
-      render
+      render @world
     end
-    @renderer.close
+    @renderer.shutdown
   end
 
   private
 
+    def initialize_renderer(renderer_type)
+      renderer_class = renderer_type.to_s.split('_').map{ |p| p.capitalize }.join
+      ['Renderer', renderer_class].inject(Object) { |o, c| o.const_get c}.new
+    end
+
     def calculate_cycle
-      @world.each do |x, y, cell|
-        neighbours = @world.find_neighbours(x, y)
+      @world.each do |cell|
+        neighbours = @world.find_neighbours(cell)
         alive_count = neighbours.reduce(0) { |count, neighbour| count += 1 if neighbour.is_alive?; count }
         if cell.is_dead? && alive_count == 3
           cell.live!
@@ -48,13 +49,12 @@ class GolEngine
     end
 
     def apply
-      @world.each do |x, y, cell|
+      @world.each do |cell|
         cell.apply
       end
     end
 
-    def render
-      use_renderer :console unless @renderer
-      @renderer.render
+    def render(world)
+      @renderer.render world
     end
 end

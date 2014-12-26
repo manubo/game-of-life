@@ -8,24 +8,31 @@ class World
   end
 
   def populate(prototype)
-    each do |x, y|
-      set(x,y, prototype.new)
+    for y in 0..(@height - 1)
+      for x in 0..(@width - 1)
+        cell = prototype.clone
+        cell.x = x
+        cell.y = y
+        set(cell)
+      end
     end
   end
 
-  def set(x, y, cell)
-    raise 'Invalid coordinates' if !verify_coordinates(x, y)
-    @grid[y][x] = cell
+  def set(cell)
+    raise 'Invalid coordinates' unless verify_coordinates(cell.x, cell.y)
+    @grid[cell.y][cell.x] = cell
   end
 
   def get(x, y)
-    raise 'Invalid coordinates' if !verify_coordinates(x, y)
+    raise 'Invalid coordinates' unless verify_coordinates(x, y)
     @grid[y][x]
   end
 
-  def find_neighbours(x, y)
+  def find_neighbours(cell)
     neighbours = []
-    for nx in (x - 1)..(x + 1) do
+    x = cell.x
+    y = cell.y
+    [x - 1, x, x + 1].each do |nx|
       if verify_coordinates(nx, y - 1)
         neighbours << get(nx, y - 1)
       end
@@ -39,20 +46,19 @@ class World
     neighbours
   end
 
-  def each
-    for y in 0..(@height - 1)
-      for x in 0..(@width - 1)
-        yield x, y, get(x, y)
-      end
-    end
-  end
-
   def each_row
     @grid.each { |row| yield row }
   end
 
-  private
+  def each
+    each_row do |row|
+      row.each do |cell|
+        yield cell
+      end
+    end
+  end
 
+  private
     def verify_coordinates(x, y)
       if x >= 0 && x < @width && y >= 0 && y < @height
         return true

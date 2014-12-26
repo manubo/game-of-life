@@ -2,19 +2,24 @@ require 'curses'
 
 module Renderer
   class Console
-    def initialize(world)
-      @world = world
-      @window = Curses::Window.new(world.height, world.width, 0, 0)
-      @window.refresh
+    attr_reader :width, :height
+    attr_writer :world
+
+    def initialize
+      Curses.init_screen
+      @width  = Curses.cols
+      @height = Curses.lines
+      @window = Curses::Window.new(@height, @width, 0, 0)
       Curses::curs_set(0)
+      @window.refresh
     end
 
-    def render
+    def render(world)
       @window.clear
       box_window
-      @world.each do |x, y, cell|
+      world.each do |cell|
         if cell.is_alive?
-          @window.setpos(y, x)
+          @window.setpos(cell.y, cell.x)
           @window.addstr("\u273A".encode('utf-8'))
           @window.refresh
         end
