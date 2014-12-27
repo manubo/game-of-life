@@ -4,5 +4,5 @@ require 'cell'
 require 'gol_engine'
 
 engine = GolEngine.new
-engine.read_pattern('patterns/puff-suppresor.txt', 80, 12)
+engine.read_pattern('patterns/lonely-walker.txt', 100, 30)
 engine.run 1000
