@@ -21,36 +21,22 @@ RSpec.describe World do
     expect(world.get(0, 1).y).to be(1)
   end
 
-  it 'should populate the world with the prototype given' do
-    world = World.new(2, 2)
-    world.populate(Cell.new(:alive))
-    expect(world.get(0, 0).is_alive?).to be(true)
-    expect(world.get(0, 1).is_alive?).to be(true)
-    expect(world.get(1, 0).is_alive?).to be(true)
-    expect(world.get(1, 1).is_alive?).to be(true)
-  end
-
-  it 'should raise an error getting invalid coordinates' do 
-    world = World.new(2, 2)
-    expect{ world.get(3, 0) }.to raise_error
-    expect{ world.get(0, 3) }.to raise_error
-  end
-
-  it 'should raise an error setting cells with invalid coordinates' do
-    cell = Cell.new()
-    cell.x = 3
-    cell.y = 0
-    expect { world.set(cell) }.to raise_error
-    cell = Cell.new()
-    cell.x = 0
-    cell.y = 3
-    expect { world.set(cell) }.to raise_error
-  end
-
-  describe 'finding neighbours' do
-    before(:each) do
+  describe 'populating' do
+    before(:each) do 
       @world = World.new(3, 3)
-      @world.populate(Cell.new)
+      @world.populate(Cell.new(:alive))
+    end
+
+    it 'should populate the world with the prototype given' do
+      expect(@world.get(0, 0).is_alive?).to be(true)
+      expect(@world.get(0, 1).is_alive?).to be(true)
+      expect(@world.get(0, 2).is_alive?).to be(true)
+      expect(@world.get(1, 0).is_alive?).to be(true)
+      expect(@world.get(1, 1).is_alive?).to be(true)
+      expect(@world.get(1, 2).is_alive?).to be(true)
+      expect(@world.get(2, 0).is_alive?).to be(true)
+      expect(@world.get(2, 1).is_alive?).to be(true)
+      expect(@world.get(2, 2).is_alive?).to be(true)
     end
 
     it 'should find all neighbours of a cell' do 
@@ -79,12 +65,29 @@ RSpec.describe World do
     end
 
     def test_neighbours(cell, expected_coords)
-      neighbours = @world.find_neighbours(cell)
+      neighbours = cell.neighbours
       expect(neighbours.length).to be(expected_coords.length)
       expected_coords.each do |x, y|
         expect(neighbours.find { |cell| cell.x == x && cell.y == y }).to be_a(Cell)
       end
     end
+  end
+
+  it 'should raise an error getting invalid coordinates' do 
+    world = World.new(2, 2)
+    expect{ world.get(3, 0) }.to raise_error
+    expect{ world.get(0, 3) }.to raise_error
+  end
+
+  it 'should raise an error setting cells with invalid coordinates' do
+    cell = Cell.new()
+    cell.x = 3
+    cell.y = 0
+    expect { world.set(cell) }.to raise_error
+    cell = Cell.new()
+    cell.x = 0
+    cell.y = 3
+    expect { world.set(cell) }.to raise_error
   end
 
   describe 'iterating' do 

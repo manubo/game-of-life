@@ -16,6 +16,9 @@ class World
         set(cell)
       end
     end
+    each do |cell|
+      set_neighbours(cell)
+    end
   end
 
   def set(cell)
@@ -26,24 +29,6 @@ class World
   def get(x, y)
     raise 'Invalid coordinates' unless verify_coordinates(x, y)
     @grid[y][x]
-  end
-
-  def find_neighbours(cell)
-    neighbours = []
-    x = cell.x
-    y = cell.y
-    [x - 1, x, x + 1].each do |nx|
-      if verify_coordinates(nx, y - 1)
-        neighbours << get(nx, y - 1)
-      end
-      if verify_coordinates(nx, y + 1)
-        neighbours << get(nx, y + 1)
-      end
-      if verify_coordinates(nx, y) && nx != x
-        neighbours << get(nx, y)
-      end
-    end
-    neighbours
   end
 
   def each_row
@@ -64,5 +49,23 @@ class World
         return true
       end
       false
+    end
+
+    def set_neighbours(cell)
+      neighbours = []
+      x = cell.x
+      y = cell.y
+      [x - 1, x, x + 1].each do |nx|
+        if verify_coordinates(nx, y - 1)
+          neighbours << get(nx, y - 1)
+        end
+        if verify_coordinates(nx, y + 1)
+          neighbours << get(nx, y + 1)
+        end
+        if verify_coordinates(nx, y) && nx != x
+          neighbours << get(nx, y)
+        end
+      end
+      cell.neighbours = neighbours
     end
 end

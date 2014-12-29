@@ -5,7 +5,10 @@ require 'rules/conway'
 
 class GolEngine
   def initialize(options = {})
-    fetch_options options
+    @renderer = get_renderer(options.fetch(:renderer, :console))
+    @width    = options.fetch(:width, @renderer.width)
+    @height   = options.fetch(:height, @renderer.height)
+    include_rule options.fetch(:rule, :conway)
     @world  = World.new(@width, @height)
     @world.populate Cell.new
   end
@@ -30,10 +33,8 @@ class GolEngine
 
   def initial_pattern(coordinates)
     coordinates.each do |x, y|
-      cell = Cell.new(:alive)
-      cell.x = x
-      cell.y = y
-      @world.set(cell)
+      cell = @world.get(x, y)
+      cell.state = :alive
     end
   end
 
@@ -48,13 +49,6 @@ class GolEngine
   end
 
   private
-
-    def fetch_options(options)
-      @renderer = get_renderer(options.fetch(:renderer, :console))
-      @width    = options.fetch(:width, @renderer.width)
-      @height   = options.fetch(:height, @renderer.height)
-      include_rule options.fetch(:rule, :conway)
-    end
 
     def get_renderer(renderer)
       get_constant(renderer, 'Renderer').new
@@ -74,11 +68,20 @@ class GolEngine
     end
 
     def calculate_cycle
+      neighbours = []
       @world.each do |cell|
-        neighbours = @world.find_neighbours(cell)
-        alive_neighbours = neighbours.reduce(0) { |count, neighbour| count += 1 if neighbour.is_alive?; count }
-        execute_rule(cell, alive_neighbours)
+        next if cell.is_dead?
+        calculate_cell cell
+        neighbours.concat cell.neighbours
       end
+      neighbours.uniq.each do |c|
+        calculate_cell c
+      end
+    end
+
+    def calculate_cell(cell)
+      alive_neighbours = cell.neighbours.reduce(0) { |count, neighbour| count += 1 if neighbour.is_alive?; count }
+      execute_rule(cell, alive_neighbours)
     end
 
     def apply

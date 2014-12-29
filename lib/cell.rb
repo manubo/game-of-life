@@ -1,5 +1,5 @@
 class Cell
-  attr_accessor :x, :y, :state
+  attr_accessor :x, :y, :state, :neighbours
 
   def initialize(state = :dead)
     @state      = state
