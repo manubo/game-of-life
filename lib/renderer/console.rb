@@ -15,6 +15,7 @@ module Renderer
     end
 
     def render(world)
+      sleep(0.012)
       @window.clear
       box_window
       world.each do |cell|

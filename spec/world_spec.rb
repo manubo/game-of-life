@@ -46,22 +46,22 @@ RSpec.describe World do
 
     it 'should find all neighbours of the upper left corner cell' do
       cell = @world.get(0, 0)
-      test_neighbours cell, [[1, 0], [1, 1], [0, 1]]
+      test_neighbours cell, [[1, 0], [1, 1], [0, 1], [2, 0], [2, 2], [0, 2], [2, 1], [1, 2]]
     end
 
     it 'should find all neighbours of the upper right corner cell' do
       cell = @world.get(2, 0)
-      test_neighbours cell, [[1, 0], [1, 1], [2, 1]]
+      test_neighbours cell, [[1, 0], [1, 1], [2, 1], [0, 1], [2, 2], [0, 2], [1, 2], [0, 0]]
     end
 
     it 'should find all neighbours of the down left corner cell' do
       cell = @world.get(0, 2)
-      test_neighbours cell, [[0, 1], [1, 1], [1, 2]]
+      test_neighbours cell, [[0, 1], [1, 1], [1, 2], [0, 0], [1, 0], [2, 2], [2, 1], [2, 0]]
     end
 
      it 'should find all neighbours of the down right corner cell' do
       cell = @world.get(2, 2)
-      test_neighbours cell, [[2, 1], [1, 1], [1, 2]]
+      test_neighbours cell, [[2, 1], [1, 1], [1, 2], [0, 0], [1, 0], [2, 0], [0, 2], [0, 1]]
     end
 
     def test_neighbours(cell, expected_coords)
@@ -73,21 +73,24 @@ RSpec.describe World do
     end
   end
 
-  it 'should raise an error getting invalid coordinates' do 
+  it 'should transform out of boundary coordinates for get' do
     world = World.new(2, 2)
-    expect{ world.get(3, 0) }.to raise_error
-    expect{ world.get(0, 3) }.to raise_error
+    world.populate(Cell.new)
+    expect(world.get(3, 0)).to satisfy { |cell| cell.x == 1 && cell.y == 0 }
+    expect(world.get(0, 3)).to satisfy { |cell| cell.x == 0 && cell.y == 1 }
   end
 
-  it 'should raise an error setting cells with invalid coordinates' do
+  it 'should transform out of boundary coordinates for set' do
+    world = World.new(2, 2)
+    world.populate(Cell.new)
     cell = Cell.new()
     cell.x = 3
     cell.y = 0
-    expect { world.set(cell) }.to raise_error
-    cell = Cell.new()
+    world.set(cell)
+    expect(world.set(cell)).to satisfy { cell == world.get(1, 0);  }
     cell.x = 0
     cell.y = 3
-    expect { world.set(cell) }.to raise_error
+    expect(world.set(cell)).to satisfy { cell == world.get(0, 1);  }
   end
 
   describe 'iterating' do 

@@ -22,13 +22,15 @@ class World
   end
 
   def set(cell)
-    raise 'Invalid coordinates' unless verify_coordinates(cell.x, cell.y)
+    coords = transform_coordinates(cell.x, cell.y)
+    cell.x = coords[0]
+    cell.y = coords[1]
     @grid[cell.y][cell.x] = cell
   end
 
   def get(x, y)
-    raise 'Invalid coordinates' unless verify_coordinates(x, y)
-    @grid[y][x]
+    coords = transform_coordinates(x, y)
+    @grid[coords[1]][coords[0]]
   end
 
   def each_row
@@ -44,11 +46,8 @@ class World
   end
 
   private
-    def verify_coordinates(x, y)
-      if x >= 0 && x < @width && y >= 0 && y < @height
-        return true
-      end
-      false
+    def transform_coordinates(x, y)
+      [(x + @width) % @width, (y + @height) % @height]
     end
 
     def set_neighbours(cell)
@@ -56,15 +55,9 @@ class World
       x = cell.x
       y = cell.y
       [x - 1, x, x + 1].each do |nx|
-        if verify_coordinates(nx, y - 1)
-          neighbours << get(nx, y - 1)
-        end
-        if verify_coordinates(nx, y + 1)
-          neighbours << get(nx, y + 1)
-        end
-        if verify_coordinates(nx, y) && nx != x
-          neighbours << get(nx, y)
-        end
+        neighbours << get(nx, y - 1)
+        neighbours << get(nx, y + 1)
+        neighbours << get(nx, y) unless nx == x
       end
       cell.neighbours = neighbours
     end
